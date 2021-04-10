@@ -76,8 +76,6 @@ class Block {
 
             if (parsedData && this.height > 0) {
                 resolve(parsedData);
-            } else {
-                reject("ERROR NO DATA FOR GENESIS BLOCK");
             }
         })
     }

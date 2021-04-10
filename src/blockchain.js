@@ -149,14 +149,12 @@ class Blockchain {
         let self = this;
         return new Promise((resolve, reject) => {
             const block = self.chain.find(blk => {
-                return blk.hash = hash;
+                return blk.hash === hash;
             })
-            if (block.length > 0) {
+            if (block) {
                 resolve(block);
-            } else {
-                reject("BLOCK NOT FOUND");
             }
-
+            reject("BLOCK NOT FOUND");
         });
     }
 
