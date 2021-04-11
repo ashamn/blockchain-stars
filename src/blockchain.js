@@ -126,10 +126,11 @@ class Blockchain {
             const fivem = 300;
             if (diff < fivem) {
                 if (bitcoinMessage.verify(message, address, signature)) {
-                    resolve(self._addBlock(new BlockClass.Block({
+                    const block = await self._addBlock(new BlockClass.Block({
                         owner: address,
                         star
-                    })));
+                    }))
+                    resolve(block);
                 } else {
                     reject("VERIFICATION ERROR");
                 }
