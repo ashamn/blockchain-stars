@@ -187,9 +187,13 @@ class Blockchain {
         let stars = [];
         return new Promise((resolve, reject) => {
             self.chain.map(async block => {
-                const data = await block.getBData();
-                if (data.owner && data.owner === address) {
-                    stars.push(data);
+                try {
+                    const data = await block.getBData();
+                    if (data.owner && data.owner === address) {
+                        stars.push(data);
+                    }
+                } catch (e) {
+                    console.log(e)
                 }
             });
             if (stars) {
