@@ -71,9 +71,9 @@ class Blockchain {
                 block.time = new Date().getTime().toString().slice(0, -3);
                 if (chainHeight >= 0) {
                     block.previousBlockHash = self.chain[self.height].hash;
+                    errors = await self.validateChain();
                 }
                 block.hash = SHA256(JSON.stringify(block)).toString();
-                errors = await self.validateChain();
                 if (errors.length === 0 && self.chain.push(block)) {
                     self.height++;
                     resolve(block);
@@ -209,12 +209,31 @@ class Blockchain {
     validateChain() {
         let self = this;
         let errorLog = [];
+
         return new Promise(async (resolve, reject) => {
-            self.chain.map(block => {
-                if (!block.validate())
-                    errorLog.push(`ERROR WITH BLOCK ${block.height}`)
-            })
+            errorLog = await Promise.all(self.chain.map((block, indx) => self.validateBlock(block, indx)));
+            if (errorLog.length > 0) {
+                errorLog = errorLog.filter(err => Object.keys(err).length > 0);
+            }
             resolve(errorLog);
+        });
+    }
+
+    validateBlock(currentBlock, indx) {
+        let blockErrors = {}
+        let self = this;
+
+        return new Promise(async (resolve) => {
+            const val1 = await currentBlock.validate();
+            if (!val1) {
+                blockErrors.val1 = `Current hash ${currentBlock.hash} has been tampered.`;
+            }
+            if (indx > 0) {
+                if (currentBlock.previousBlockHash !== self.chain[indx - 1].hash) {
+                    blockErrors.val2 = `Current hash ${currentBlock.hash} has previous hash not matching with prevous block hash`;
+                }
+            }
+            resolve(blockErrors);
         });
     }
 
